@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Лидерборд "Фотобитва: Кошки против Собак" - Spring Boot</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; background-color: #f4f4f4; color: #333; }
+        h1 { text-align: center; color: #2c3e50; }
+        table { width: 80%; margin: 20px auto; border-collapse: collapse; box-shadow: 0 2px 15px rgba(0,0,0,0.1); background-color: white; }
+        th, td { border: 1px solid #ddd; padding: 12px 15px; text-align: left; }
+        th { background-color: #5cb85c; /* Зеленый цвет Spring */ color: white; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        tr:hover { background-color: #e9f5e9; }
+        #lastUpdated { text-align: center; margin-top: 20px; font-size: 0.9em; color: #7f8c8d; }
+    </style>
+</head>
+<body>
+<h1>🏆 Лидерборд Фотобитвы (Spring Boot Server) 🏆</h1>
+<table id="leaderboardTable">
+    <thead>
+    <tr>
+        <th>Место</th>
+        <th>Команда</th>
+        <th>Точность (%)</th>
+        <th>Последнее обновление</th>
+    </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+<p id="lastUpdated">Обновление...</p>
+
+<script>
+    async function fetchLeaderboard() {
+        try {
+            // Указываем абсолютный или относительный путь к эндпоинту
+            const response = await fetch('/leaderboard_data'); // Эндпоинт на этом же сервере
+            if (!response.ok) {
+                console.error("Ошибка получения данных лидерборда:", response.status, await response.text());
+                document.getElementById('lastUpdated').textContent = 'Ошибка обновления (сервер).';
+                return;
+            }
+            const data = await response.json();
+            const tableBody = document.getElementById('leaderboardTable').getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = ''; // Очистить старые данные
+
+            if (data.length === 0) {
+                const row = tableBody.insertRow();
+                const cell = row.insertCell();
+                cell.colSpan = 4;
+                cell.textContent = 'Пока нет данных от команд...';
+                cell.style.textAlign = 'center';
+            } else {
+                data.forEach((item, index) => {
+                    const row = tableBody.insertRow();
+                    row.insertCell().textContent = index + 1; // Место
+                    row.insertCell().textContent = item.teamId; // team_id
+                    row.insertCell().textContent = item.accuracy.toFixed(2); // accuracy
+                    row.insertCell().textContent = item.lastUpdateTime; // last_update_time
+                });
+            }
+            document.getElementById('lastUpdated').textContent = 'Последнее обновление: ' + new Date().toLocaleTimeString();
+        } catch (error) {
+            console.error("Ошибка при обновлении лидерборда (клиент):", error);
+            document.getElementById('lastUpdated').textContent = 'Ошибка обновления (клиент). Проверьте консоль.';
+        }
+    }
+
+    // Первоначальная загрузка и установка интервала обновления
+    fetchLeaderboard();
+    setInterval(fetchLeaderboard, 15000); // Обновлять каждые 15 секунд
+</script>
+</body>
+</html>
