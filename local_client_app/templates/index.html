@@ -1,63 +1,47 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>Фотобитва: Кошки vs Собаки - Ваша Команда</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f0f2f5; color: #333; }
-        .container { max-width: 700px; margin: auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        h1 { text-align: center; color: #1877f2; }
-        h2 { color: #333; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        label { display: block; margin-top: 10px; font-weight: bold; }
-        input[type="file"], select, input[type="submit"] {
-            width: calc(100% - 22px); padding: 10px; margin-top: 5px; border-radius: 5px; border: 1px solid #ccc;
-            box-sizing: border-box;
-        }
-        input[type="submit"] { background-color: #1877f2; color: white; font-weight: bold; cursor: pointer; }
-        input[type="submit"]:hover { background-color: #166fe5; }
-        .flash-messages { list-style: none; padding: 0; }
-        .flash-messages li { padding: 10px; margin-bottom: 10px; border-radius: 5px; }
-        .flash-messages .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .flash-messages .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        .stats { margin-top: 20px; padding: 15px; background-color: #e9ecef; border-radius: 5px; }
-        .stats p { margin: 5px 0; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Фотобитва: Кошки vs Собаки</h1>
+{% extends "base.html" %}
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <ul class="flash-messages">
-                {% for category, message in messages %}
-                    <li class="{{ category }}">{{ message }}</li>
-                {% endfor %}
-                </ul>
-            {% endif %}
-        {% endwith %}
+{% block title %}Upload Image - ML Competition{% endblock %}
 
-        <h2>Загрузите фото для обучения вашей модели</h2>
-        <form method="post" action="{{ url_for('upload_file') }}" enctype="multipart/form-data">
-            <label for="photo">Выберите файл (jpg, jpeg, png):</label>
-            <input type="file" name="photo" id="photo" required>
-
-            <label for="label">Это кошка или собака?</label>
-            <select name="label" id="label" required>
-                <option value="" disabled selected>-- Выберите метку --</option>
-                <option value="cat">Кошка</option>
-                <option value="dog">Собака</option>
-            </select>
-
-            <input type="submit" value="Загрузить и Дообучить">
-        </form>
-
-        <div class="stats">
-            <h2>Статистика Вашей Команды</h2>
-<p>Текущая точность на общем тестовом наборе: <strong>{{ accuracy | round(2) }} %</strong></p>            <p>Время последнего обновления точности: {{ last_update_time }}</p>
-            <p>Загружено кошек: {{ num_cats }}</p>
-            <p>Загружено собак: {{ num_dogs }}</p>
+{% block content %}
+<div class="container">
+    <h1>Upload Cat/Dog Image</h1>
+    <form method="POST" action="{{ url_for('upload_file') }}" enctype="multipart/form-data">
+        <!-- Team ID removed, will be automatically used from the server configuration -->
+        <div class="form-group">
+            <label for="photo">Choose Image:</label>
+            <input type="file" id="photo" name="photo" accept="image/jpeg, image/png" required>
         </div>
+        <div class="form-group">
+            <label for="label">Choose Class:</label>
+            <select name="label" id="label" required>
+                <option value="cat">Cat</option>
+                <option value="dog">Dog</option>
+            </select>
+        </div>
+        <p class="text-muted">Using Team ID: <strong>{{ team_name }}</strong></p>
+        <button type="submit" class="btn">Upload and Train</button>
+    </form>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flashes">
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    {% if accuracy is defined %}
+    <div class="alert alert-info" style="margin-top: 20px;">
+        Current model accuracy: {{ "%.2f"|format(accuracy * 100) }}%
     </div>
-</body>
-</html>
+    {% endif %}
+
+    {% if error %}
+    <div class="alert alert-danger" style="margin-top: 20px;">
+        Error: {{ error }}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

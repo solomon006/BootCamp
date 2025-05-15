@@ -1,5 +1,5 @@
 # app_client.py
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 import os
 from werkzeug.utils import secure_filename  # Для безопасного сохранения имен файлов
 import model_logic  # Наш модуль с логикой модели
@@ -16,7 +16,7 @@ app.secret_key = "super_secret_key_for_event"  # Установите секре
 # Папки для загружаемых студентами изображений
 # Убедитесь, что эти пути корректны относительно app_client.py
 # или используйте абсолютные пути
-TEAM_NAME = "MyAwesomeTeam"  # ЗАМЕНИТЬ: Уникальное имя/ID для каждой команды
+TEAM_NAME = "school 1"  # ЗАМЕНИТЬ: Уникальное имя/ID для каждой команды
 UPLOAD_FOLDER_CATS = os.path.join(model_logic.TEAM_UPLOAD_BASE_PATH, 'cat')
 UPLOAD_FOLDER_DOGS = os.path.join(model_logic.TEAM_UPLOAD_BASE_PATH, 'dog')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
@@ -27,6 +27,9 @@ app.config['UPLOAD_FOLDER_DOGS'] = UPLOAD_FOLDER_DOGS
 # Создаем папки, если их нет
 os.makedirs(UPLOAD_FOLDER_CATS, exist_ok=True)
 os.makedirs(UPLOAD_FOLDER_DOGS, exist_ok=True)
+
+# URL для получения всех очков с центрального сервера
+CENTRAL_SERVER_LEADERBOARD_URL = "http://127.0.0.1:5000/leaderboard_data" # ИЗМЕНЕНО: на актуальный эндпоинт сервера
 
 # Глобальная переменная для хранения текущей точности (для упрощения)
 current_local_accuracy = 0.0
@@ -53,7 +56,8 @@ def index():
                            accuracy=current_local_accuracy,
                            last_update_time=last_accuracy_update_time,
                            num_cats=num_cats,
-                           num_dogs=num_dogs)
+                           num_dogs=num_dogs,
+                           team_name=TEAM_NAME) # Добавим имя команды в главный шаблон
 
 
 @app.route('/upload', methods=['POST'])
@@ -139,6 +143,29 @@ def send_score_to_server(team_id_str, accuracy_float):
         error_msg = f"Критическая ошибка отправки на сервер (возможно, сервер недоступен): {e}"
         print(f"[{model_logic.get_current_time_str()}] {error_msg}")
         flash(error_msg)
+
+
+@app.route('/leaderboard')
+def leaderboard_page():
+    """Отображает страницу с рейтингом."""
+    return render_template('leaderboard.html', team_name=TEAM_NAME)
+
+@app.route('/api/leaderboard_data')
+def api_leaderboard_data():
+    """Возвращает данные для таблицы рейтинга в формате JSON."""
+    try:
+        response = requests.get(CENTRAL_SERVER_LEADERBOARD_URL, timeout=5)
+        if response.status_code == 200:
+            scores = response.json()
+            # Сортируем по убыванию точности
+            sorted_scores = sorted(scores, key=lambda x: x.get('accuracy', 0), reverse=True)
+            return jsonify(sorted_scores)
+        else:
+            print(f"[{model_logic.get_current_time_str()}] Ошибка получения рейтинга с сервера: {response.status_code} - {response.text}")
+            return jsonify({"error": "Could not fetch leaderboard data from server", "status_code": response.status_code}), 500
+    except requests.exceptions.RequestException as e:
+        print(f"[{model_logic.get_current_time_str()}] Критическая ошибка получения рейтинга с сервера: {e}")
+        return jsonify({"error": f"Could not connect to leaderboard server: {e}"}), 500
 
 
 # --- Запуск Flask приложения ---

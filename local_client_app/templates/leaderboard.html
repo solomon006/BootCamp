@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Leaderboard - ML Competition{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Leaderboard</h1>
+    <table id="leaderboardTable">
+        <thead>
+            <tr>
+                <th>Rank</th>
+                <th>Team ID</th>
+                <th>Accuracy (%)</th>
+                <th>Timestamp</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data will be loaded here by JavaScript -->
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function fetchLeaderboardData() {
+        fetch("{{ url_for('api_leaderboard_data') }}")
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.getElementById('leaderboardTable').getElementsByTagName('tbody')[0];
+                tableBody.innerHTML = ''; // Clear existing rows
+                if (data.length === 0) {
+                    const row = tableBody.insertRow();
+                    const cell = row.insertCell();
+                    cell.colSpan = 4;
+                    cell.textContent = 'No scores yet.';
+                    cell.style.textAlign = 'center';
+                } else {
+                    // Sort data by accuracy descending, then by timestamp ascending for ties
+                    data.sort((a, b) => {
+                        if (b.accuracy !== a.accuracy) {
+                            return b.accuracy - a.accuracy;
+                        }
+                        return new Date(a.timestamp) - new Date(b.timestamp);
+                    });
+
+                    data.forEach((score, index) => {
+                        const row = tableBody.insertRow();
+                        const rankCell = row.insertCell();
+                        const teamIdCell = row.insertCell();
+                        const accuracyCell = row.insertCell();
+                        const timestampCell = row.insertCell();
+
+                        rankCell.textContent = index + 1;
+                        teamIdCell.textContent = score.team_id;
+                        accuracyCell.textContent = (score.accuracy * 100).toFixed(2);
+                        timestampCell.textContent = new Date(score.timestamp).toLocaleString();
+                        
+                        // Add data-label attributes for responsive table
+                        rankCell.setAttribute('data-label', 'Rank');
+                        teamIdCell.setAttribute('data-label', 'Team ID');
+                        accuracyCell.setAttribute('data-label', 'Accuracy (%)');
+                        timestampCell.setAttribute('data-label', 'Timestamp');
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching leaderboard data:', error);
+                const tableBody = document.getElementById('leaderboardTable').getElementsByTagName('tbody')[0];
+                tableBody.innerHTML = '';
+                const row = tableBody.insertRow();
+                const cell = row.insertCell();
+                cell.colSpan = 4;
+                cell.textContent = 'Error loading leaderboard data.';
+                cell.style.textAlign = 'center';
+            });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        fetchLeaderboardData(); // Initial fetch
+        setInterval(fetchLeaderboardData, 15000); // Refresh every 15 seconds
+    });
+</script>
+{% endblock %}

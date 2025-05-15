@@ -1,0 +1,206 @@
+/* static/style.css */
+body {
+    font-family: sans-serif;
+    margin: 0;
+    background-color: #f4f4f4;
+    color: #333;
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 220px;
+    background-color: #1f214a; /* Primary color */
+    color: white;
+    padding: 20px;
+    height: 100vh; /* Full height */
+    position: fixed; /* Fixed Sidebar */
+    top: 0;
+    left: 0;
+    overflow-y: auto; /* Scrollable if content overflows */
+}
+
+.sidebar h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #fff; /* White text for sidebar heading */
+}
+
+.sidebar ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.sidebar ul li a {
+    display: block;
+    color: #b0c4de; /* Lighter blue for links */
+    padding: 10px 15px;
+    text-decoration: none;
+    border-radius: 4px;
+    margin-bottom: 5px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.sidebar ul li a:hover, .sidebar ul li a.active {
+    background-color: #2c3e50; /* Darker shade on hover/active */
+    color: white;
+}
+
+.main-content {
+    margin-left: 220px; /* Same as sidebar width */
+    padding: 20px;
+    width: calc(100% - 220px); /* Take remaining width */
+    box-sizing: border-box;
+}
+
+.container {
+    background-color: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+h1, h2 {
+    color: #1f214a; /* Primary color for headings */
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-group input[type="text"],
+.form-group input[type="file"],
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.btn {
+    background-color: #1f214a; /* Primary color for buttons */
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+    background-color: #2c3e50; /* Darker shade on hover */
+}
+
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.alert-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+table th, table td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+}
+
+table th {
+    background-color: #1f214a; /* Primary color for table header */
+    color: white;
+}
+
+table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+table tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative; /* Becomes part of the flow */
+        padding-bottom: 0; /* Adjust padding for smaller screens */
+    }
+    .sidebar ul li a {
+        text-align: center;
+    }
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+        padding: 15px; /* Adjust padding for smaller screens */
+    }
+    .form-group input[type="text"],
+    .form-group input[type="file"],
+    .form-group select {
+        font-size: 16px; /* Improve readability on mobile */
+    }
+    .btn {
+        width: 100%;
+        padding: 12px;
+    }
+    table, thead, tbody, th, td, tr {
+        display: block; /* Make table elements stack */
+    }
+    table thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+    table tr {
+        border: 1px solid #ccc;
+        margin-bottom: 10px;
+    }
+    table td {
+        border: none;
+        border-bottom: 1px solid #eee;
+        position: relative;
+        padding-left: 50%; /* Space for data label */
+        text-align: right;
+    }
+    table td::before {
+        content: attr(data-label); /* Use data-label for pseudo-header */
+        position: absolute;
+        left: 10px;
+        width: calc(50% - 20px); /* Adjust width */
+        padding-right: 10px;
+        white-space: nowrap;
+        font-weight: bold;
+        text-align: left;
+    }
+}
