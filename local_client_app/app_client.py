@@ -24,10 +24,10 @@ model_lock = threading.Lock()
 # Папки для загружаемых студентами изображений
 # Убедитесь, что эти пути корректны относительно app_client.py
 # или используйте абсолютные пути
-TEAM_NAME = "school 1"  # ЗАМЕНИТЬ: Уникальное имя/ID для каждой команды
+TEAM_NAME = "school 4"  # ЗАМЕНИТЬ: Уникальное имя/ID для каждой команды
 UPLOAD_FOLDER_CATS = os.path.join(model_logic.TEAM_UPLOAD_BASE_PATH, 'cat')
 UPLOAD_FOLDER_DOGS = os.path.join(model_logic.TEAM_UPLOAD_BASE_PATH, 'dog')
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp'}
 
 app.config['UPLOAD_FOLDER_CATS'] = UPLOAD_FOLDER_CATS
 app.config['UPLOAD_FOLDER_DOGS'] = UPLOAD_FOLDER_DOGS

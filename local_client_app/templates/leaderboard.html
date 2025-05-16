@@ -11,7 +11,7 @@
             <select id="sortBy" class="sort-select">
                 <option value="rank" selected>Rank</option>
                 <option value="accuracy">Accuracy</option>
-                <option value="timestamp">Timestamp</option>
+                <option value="image_count">Images Count</option>
                 <option value="team_id">Team ID</option>
             </select>
         </div>
@@ -31,13 +31,28 @@
                     <th data-sort="rank">Rank <span class="sort-icon">▼</span></th>
                     <th data-sort="team_id">Team ID</th>
                     <th data-sort="accuracy">Accuracy (%) <span class="sort-icon"></span></th>
-                    <th data-sort="timestamp">Timestamp <span class="sort-icon"></span></th>
+                    <th data-sort="image_count">Uploaded Images <span class="sort-icon"></span></th>
                 </tr>
             </thead>
             <tbody>
                 <!-- Data will be loaded here by JavaScript -->
             </tbody>
         </table>
+    </div>
+    
+    <div class="team-info-box">
+        <h3>Your Team Stats</h3>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <strong>Cats:</strong> <span>{{ num_cats }}</span>
+            </div>
+            <div class="stat-item">
+                <strong>Dogs:</strong> <span>{{ num_dogs }}</span>
+            </div>
+            <div class="stat-item">
+                <strong>Total:</strong> <span>{{ total_images }}</span>
+            </div>
+        </div>
     </div>
     
     <div id="lastUpdated" class="last-updated">
@@ -81,9 +96,10 @@
             } else if (currentSortField === 'accuracy') {
                 valueA = a.accuracy;
                 valueB = b.accuracy;
-            } else if (currentSortField === 'timestamp') {
-                valueA = new Date(a.timestamp).getTime();
-                valueB = new Date(b.timestamp).getTime();
+            } else if (currentSortField === 'image_count') {
+                // Use the image count
+                valueA = a.image_count || 0;
+                valueB = b.image_count || 0;
             } else if (currentSortField === 'team_id') {
                 valueA = a.team_id.toLowerCase();
                 valueB = b.team_id.toLowerCase();
@@ -141,18 +157,23 @@
             const rankCell = row.insertCell();
             const teamIdCell = row.insertCell();
             const accuracyCell = row.insertCell();
-            const timestampCell = row.insertCell();
+            const imageCountCell = row.insertCell();
             
             rankCell.textContent = score._rank;
             teamIdCell.textContent = score.team_id;
             accuracyCell.textContent = (score.accuracy * 100).toFixed(2);
-            timestampCell.textContent = new Date(score.timestamp).toLocaleString();
+            imageCountCell.textContent = score.image_count || 0;
+            
+            // Highlight our team
+            if (score.team_id === "{{ team_name }}") {
+                row.classList.add('our-team');
+            }
             
             // Add data-label attributes for responsive table
             rankCell.setAttribute('data-label', 'Rank');
             teamIdCell.setAttribute('data-label', 'Team ID');
             accuracyCell.setAttribute('data-label', 'Accuracy (%)');
-            timestampCell.setAttribute('data-label', 'Timestamp');
+            imageCountCell.setAttribute('data-label', 'Uploaded Images');
         });
         
         // Update sort icons
@@ -213,8 +234,8 @@
                     currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
                 } else {
                     currentSortField = field;
-                    // Default to descending for accuracy and rank, ascending for others
-                    currentSortDirection = (field === 'accuracy' || field === 'rank') ? 'desc' : 'asc';
+                    // Default to descending for accuracy, rank, and image count
+                    currentSortDirection = (field === 'accuracy' || field === 'rank' || field === 'image_count') ? 'desc' : 'asc';
                 }
                 
                 renderTable();
