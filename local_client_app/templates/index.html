@@ -5,43 +5,81 @@
 {% block content %}
 <div class="container">
     <h1>Upload Cat/Dog Image</h1>
-    <form method="POST" action="{{ url_for('upload_file') }}" enctype="multipart/form-data">
-        <!-- Team ID removed, will be automatically used from the server configuration -->
-        <div class="form-group">
-            <label for="photo">Choose Image:</label>
-            <input type="file" id="photo" name="photo" accept="image/jpeg, image/png" required>
+    
+    <div class="stats-container">
+        <div class="stat-card">
+            <div class="stat-value">{{ "%.2f"|format(accuracy * 100) }}%</div>
+            <div class="stat-label">Current Accuracy</div>
         </div>
-        <div class="form-group">
-            <label for="label">Choose Class:</label>
-            <select name="label" id="label" required>
-                <option value="cat">Cat</option>
-                <option value="dog">Dog</option>
-            </select>
+        <div class="stat-card">
+            <div class="stat-value">{{ num_cats }}</div>
+            <div class="stat-label">Cats</div>
         </div>
-        <p class="text-muted">Using Team ID: <strong>{{ team_name }}</strong></p>
-        <button type="submit" class="btn">Upload and Train</button>
-    </form>
+        <div class="stat-card">
+            <div class="stat-value">{{ num_dogs }}</div>
+            <div class="stat-label">Dogs</div>
+        </div>
+    </div>
+    
+    <div class="upload-form">
+        <form method="POST" action="{{ url_for('upload_file') }}" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="photo" class="file-button">
+                    <span class="file-button-text">Choose Image</span>
+                    <input type="file" id="photo" name="photo" accept="image/jpeg, image/png" required class="file-input">
+                </label>
+                <div class="file-name" id="fileName">No file chosen</div>
+            </div>
+            
+            <div class="form-group">
+                <label>Choose Class:</label>
+                <div class="radio-container">
+                    <label class="radio-label">
+                        <input type="radio" name="label" value="cat" required checked>
+                        <span class="radio-custom">Cat</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="label" value="dog">
+                        <span class="radio-custom">Dog</span>
+                    </label>
+                </div>
+            </div>
+            
+            <p class="team-info">Team: <strong>{{ team_name }}</strong></p>
+            <button type="submit" class="btn btn-submit">Upload and Train</button>
+        </form>
+    </div>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-            <div class="flashes">
+            <div class="messages-container">
             {% for category, message in messages %}
-                <div class="alert alert-{{ category }}">{{ message }}</div>
+                <div class="alert alert-{{ category if category else 'info' }}">
+                    <span class="alert-icon">{% if category == 'success' %}✓{% elif category == 'danger' %}!{% else %}ℹ{% endif %}</span>
+                    <span class="alert-message">{{ message }}</span>
+                </div>
             {% endfor %}
             </div>
         {% endif %}
     {% endwith %}
 
-    {% if accuracy is defined %}
-    <div class="alert alert-info" style="margin-top: 20px;">
-        Current model accuracy: {{ "%.2f"|format(accuracy * 100) }}%
-    </div>
-    {% endif %}
-
     {% if error %}
-    <div class="alert alert-danger" style="margin-top: 20px;">
-        Error: {{ error }}
+    <div class="alert alert-danger">
+        <span class="alert-icon">!</span>
+        <span class="alert-message">{{ error }}</span>
     </div>
     {% endif %}
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Update file name display when file is selected
+        document.getElementById('photo').addEventListener('change', function() {
+            const fileName = this.files[0] ? this.files[0].name : 'No file chosen';
+            document.getElementById('fileName').textContent = fileName;
+        });
+    });
+</script>
 {% endblock %}

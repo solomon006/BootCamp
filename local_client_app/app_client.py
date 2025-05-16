@@ -29,7 +29,7 @@ os.makedirs(UPLOAD_FOLDER_CATS, exist_ok=True)
 os.makedirs(UPLOAD_FOLDER_DOGS, exist_ok=True)
 
 # URL для получения всех очков с центрального сервера
-CENTRAL_SERVER_LEADERBOARD_URL = "http://127.0.0.1:5000/leaderboard_data" # ИЗМЕНЕНО: на актуальный эндпоинт сервера
+CENTRAL_SERVER_LEADERBOARD_URL = "https://4956-46-251-206-136.ngrok-free.app/leaderboard_data" # ИЗМЕНЕНО: на актуальный эндпоинт сервера
 
 # Глобальная переменная для хранения текущей точности (для упрощения)
 current_local_accuracy = 0.0
@@ -124,7 +124,7 @@ def upload_file():
 
 
 # --- Связь с центральным сервером ---
-CENTRAL_SERVER_URL_SUBMIT = "http://127.0.0.1:5000/submit_score"  # ЗАМЕНИТЬ: IP и порт вашего центрального сервера
+CENTRAL_SERVER_URL_SUBMIT = "https://4956-46-251-206-136.ngrok-free.app/submit_score"  # ЗАМЕНИТЬ: IP и порт вашего центрального сервера
 
 
 def send_score_to_server(team_id_str, accuracy_float):
